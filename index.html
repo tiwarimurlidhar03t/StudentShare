@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudentShare - Notes & Ideas</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f4f6fb;color:#222}
+.navbar{background:#4f46e5;color:white;padding:15px 7%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:24px;font-weight:bold}.nav-links{display:flex;gap:20px}
+.nav-links a{color:white;text-decoration:none;cursor:pointer}
+.hero{padding:60px 7%;text-align:center;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white}
+.hero h1{font-size:42px;margin-bottom:15px}.hero p{font-size:18px;margin-bottom:25px}
+.search-box{max-width:650px;margin:auto;display:flex}.search-box input{width:100%;padding:15px;border:none;border-radius:8px 0 0 8px;font-size:16px;outline:none}
+.search-box button{padding:15px 25px;border:none;background:#111827;color:white;border-radius:0 8px 8px 0;cursor:pointer}
+.container{width:86%;max-width:1200px;margin:40px auto}
+.buttons{display:flex;gap:15px;margin-bottom:30px;flex-wrap:wrap}
+.btn{border:none;padding:12px 20px;border-radius:8px;cursor:pointer;font-size:15px;background:#4f46e5;color:white}
+.btn:hover{opacity:.9}.btn.green{background:#16a34a}
+.categories{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+.category{background:white;padding:10px 18px;border-radius:20px;cursor:pointer;border:1px solid #ddd}
+.category:hover{background:#4f46e5;color:white}
+.section-title{margin:25px 0 15px;font-size:26px}
+.posts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.card{background:white;padding:20px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.08)}
+.card h3{margin:10px 0}.author{color:#666;font-size:14px}
+.tag{display:inline-block;background:#e0e7ff;color:#3730a3;padding:5px 10px;border-radius:15px;font-size:12px;margin-top:8px}
+.actions{display:flex;gap:15px;margin-top:15px}.actions button{border:none;background:#f3f4f6;padding:8px 12px;border-radius:6px;cursor:pointer}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:200}
+.modal-box{width:90%;max-width:500px;background:white;padding:25px;border-radius:12px}
+.modal-box h2{margin-bottom:20px}.modal-box input,.modal-box textarea,.modal-box select{width:100%;padding:12px;margin-bottom:15px;border:1px solid #ddd;border-radius:7px;outline:none}
+.modal-box textarea{height:120px;resize:vertical}
+.image-preview{display:none;width:100%;max-height:260px;object-fit:contain;border:1px solid #ddd;border-radius:8px;margin:5px 0 15px;background:#f8fafc}
+.note-image{width:100%;max-height:420px;object-fit:contain;border-radius:10px;margin-top:15px;border:1px solid #eee;background:#f8fafc}.close{float:right;cursor:pointer;font-size:25px}
+.auth-box{max-width:450px;margin:30px auto;padding:25px;background:white;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.08)}
+.auth-box input{width:100%;padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:7px}
+.auth-secondary{border:none;background:none;margin:15px 0;cursor:pointer;color:#4f46e5}
+.message{margin-top:15px;line-height:1.5}
+footer{margin-top:60px;background:#111827;color:white;text-align:center;padding:30px}
+@media(max-width:600px){.nav-links{display:none}.hero h1{font-size:30px}.hero{padding:40px 5%}.container{width:92%}}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+<div class="logo">📚 StudentShare</div>
+<div class="nav-links">
+<a onclick="showHome()">Home</a>
+<a onclick="scrollToPosts()">Notes</a>
+<a onclick="openModal('idea')">Ideas</a>
+<a onclick="openModal('note')">Upload</a>
+</div>
+</nav>
+
+<div id="authBox" class="auth-box">
+<h2 id="authTitle">🔐 Student Login</h2>
+<input id="authName" type="text" placeholder="आपका नाम" style="display:none">
+<input id="authEmail" type="email" placeholder="Email">
+<input id="authPassword" type="password" placeholder="Password">
+<button type="button" class="btn" id="authButton" onclick="handleAuth()">Login</button>
+<br>
+<button type="button" class="auth-secondary" id="toggleButton" onclick="toggleAuth()">नया Account बनाएं</button>
+<div id="forgotPasswordLink" style="margin-top:12px;">
+<button type="button" class="auth-secondary" onclick="showForgotPassword()">🔑 Password भूल गए?</button>
+</div>
+<p id="authMessage" class="message"></p>
+</div>
+
+<section class="hero">
+<h1>Students ke liye ek jagah</h1>
+<p>Notes, Ideas aur Knowledge ek doosre ke saath share karein.</p>
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="Notes ya ideas search karein..." onkeyup="searchPosts()">
+<button onclick="searchPosts()">🔍 Search</button>
+</div>
+</section>
+
+<div class="container">
+<div class="buttons">
+<button class="btn" onclick="openModal('note')">📝 Share Notes</button>
+<button class="btn green" onclick="openModal('idea')">💡 Share Idea</button>
+</div>
+
+<h2 class="section-title">📚 Categories</h2>
+<div class="categories">
+<div class="category" onclick="filterCategory('All')">All</div>
+<div class="category" onclick="filterCategory('Hindi')">Hindi</div>
+<div class="category" onclick="filterCategory('English')">English</div>
+<div class="category" onclick="filterCategory('History')">History</div>
+<div class="category" onclick="filterCategory('Political Science')">Political Science</div>
+<div class="category" onclick="filterCategory('Maths')">Maths</div>
+<div class="category" onclick="filterCategory('Science')">Science</div>
+</div>
+
+<h2 class="section-title" id="postsSection">🔥 Latest Posts</h2>
+<div class="posts" id="postsContainer"></div>
+</div>
+
+
+<div class="modal" id="resetRequestModal">
+  <div class="modal-box">
+    <span class="close" onclick="closeResetRequest()">&times;</span>
+    <h2>🔑 Forgot Password</h2>
+    <p style="margin-bottom:15px;">अपने registered email पर password reset link मंगाएँ।</p>
+    <input type="email" id="resetEmail" placeholder="Registered Email">
+    <button class="btn" onclick="sendResetEmail()">Send Reset Link</button>
+    <p id="resetMessage" class="message"></p>
+  </div>
+</div>
+
+<div class="modal" id="newPasswordModal">
+  <div class="modal-box">
+    <h2>🔐 नया Password</h2>
+    <p style="margin-bottom:15px;">अपना नया password डालें।</p>
+    <input type="password" id="newPassword" placeholder="New Password">
+    <input type="password" id="confirmPassword" placeholder="Confirm New Password">
+    <button class="btn" onclick="updatePassword()">Update Password</button>
+    <p id="newPasswordMessage" class="message"></p>
+  </div>
+</div>
+
+<div class="modal" id="postModal">
+<div class="modal-box">
+<span class="close" onclick="closeModal()">&times;</span>
+<h2 id="modalTitle">Share Post</h2>
+<input type="text" id="studentName" placeholder="Apna naam likhein">
+<input type="text" id="postTitle" placeholder="Title">
+<select id="postCategory">
+<option value="Hindi">Hindi</option><option value="English">English</option>
+<option value="History">History</option><option value="Political Science">Political Science</option>
+<option value="Maths">Maths</option><option value="Science">Science</option>
+</select>
+<textarea id="postContent" placeholder="Apne notes ya vichar yahan likhein..."></textarea>
+<label for="postImage" style="display:block;font-weight:bold;margin-bottom:8px;">🖼️ Notes की Photo (optional)</label>
+<input type="file" id="postImage" accept="image/jpeg,image/png,image/webp" onchange="previewImage(event)">
+<img id="imagePreview" class="image-preview" alt="Selected notes preview">
+<small style="display:block;color:#666;margin:-5px 0 15px;">JPG, PNG या WebP • अधिकतम 5 MB</small>
+<button class="btn" onclick="addPost()">Publish</button>
+</div>
+</div>
+
+<footer>
+<h3>📚 StudentShare</h3>
+<p>Learn • Share • Grow Together</p><br>
+<p>© 2026 StudentShare</p>
+</footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://hwvugqujnkcyyhufdkhe.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_fmuWX3lGR8L5GVhzTFCDTg_rp9uSSL-";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+let isSignup = false;
+let currentMode = "note";
+let posts = [];
+
+const fallbackPosts = [
+  {id:"demo1",name:"Rahul",title:"महाभोज उपन्यास के महत्वपूर्ण प्रश्न",category:"Hindi",content:"महाभोज उपन्यास में भारतीय राजनीति और सामाजिक व्यवस्था का चित्रण किया गया है।",likes:12,comments:2,demo:true},
+  {id:"demo2",name:"Priya",title:"Exam Preparation Strategy",category:"English",content:"Daily study routine banakar difficult topics ko pehle complete karna useful ho sakta hai.",likes:20,comments:5,demo:true},
+  {id:"demo3",name:"Amit",title:"भारतीय राजनीति में युवाओं की भूमिका",category:"Political Science",content:"युवा लोकतांत्रिक प्रक्रिया में विभिन्न तरीकों से भाग ले सकते हैं।",likes:15,comments:3,demo:true},
+  {id:"demo4",name:"Neha",title:"History Important Topics",category:"History",content:"Modern Indian History ke important topics ko timeline ke through revise karein.",likes:9,comments:1,demo:true}
+];
+
+function escapeHTML(text){
+  const div=document.createElement("div");
+  div.textContent=String(text ?? "");
+  return div.innerHTML;
+}
+
+async function loadPosts(){
+  const container=document.getElementById("postsContainer");
+  container.innerHTML='<div class="card"><p>⏳ Posts load ho rahi hain...</p></div>';
+
+  try{
+    const {data:postRows,error:postError}=await supabaseClient
+      .from("posts")
+      .select("id,user_id,title,content,category,post_type,file_url,created_at")
+      .order("created_at",{ascending:false});
+
+    if(postError) throw postError;
+
+    if(!postRows || postRows.length===0){
+      posts=fallbackPosts;
+      displayPosts();
+      return;
+    }
+
+    const userIds=[...new Set(postRows.map(p=>p.user_id).filter(Boolean))];
+    const postIds=postRows.map(p=>p.id);
+
+    let profiles=[];
+    let likes=[];
+    let comments=[];
+
+    if(userIds.length){
+      const {data,error}=await supabaseClient
+        .from("profiles")
+        .select("id,name")
+        .in("id",userIds);
+      if(!error) profiles=data||[];
+    }
+
+    if(postIds.length){
+      const [likeResult,commentResult]=await Promise.all([
+        supabaseClient.from("likes").select("id,post_id,user_id").in("post_id",postIds),
+        supabaseClient.from("comments").select("id,post_id,user_id,comment,created_at").in("post_id",postIds)
+      ]);
+      if(!likeResult.error) likes=likeResult.data||[];
+      if(!commentResult.error) comments=commentResult.data||[];
+    }
+
+    const profileMap={};
+    profiles.forEach(p=>profileMap[p.id]=p.name);
+
+    posts=postRows.map(p=>({
+      id:p.id,
+      user_id:p.user_id,
+      name:profileMap[p.user_id] || "Student",
+      title:p.title,
+      category:p.category,
+      content:p.content,
+      file_url:p.file_url,
+      post_type:p.post_type,
+      created_at:p.created_at,
+      likes:likes.filter(l=>l.post_id===p.id).length,
+      comments:comments.filter(c=>c.post_id===p.id).length,
+      demo:false
+    }));
+
+    displayPosts();
+  }catch(error){
+    console.error("Posts load error:",error);
+    posts=fallbackPosts;
+    displayPosts();
+    container.insertAdjacentHTML("afterbegin",
+      '<div class="card" style="margin-bottom:15px;"><p>⚠️ Database posts load नहीं हुईं। Demo posts दिखाई जा रही हैं।</p></div>'
+    );
+  }
+}
+
+function displayPosts(list=posts){
+  const container=document.getElementById("postsContainer");
+  container.innerHTML="";
+
+  if(!list.length){
+    container.innerHTML='<div class="card"><h3>😔 कोई पोस्ट नहीं मिली</h3><p>दूसरे keyword से search करके देखें।</p></div>';
+    return;
+  }
+
+  list.forEach((post,index)=>{
+    const card=document.createElement("div");
+    card.className="card";
+
+    const deleteButton = post.demo ? "" :
+      `<button onclick="deletePost(${index})">🗑️ Delete</button>`;
+
+    card.innerHTML=`
+      <div class="author">👤 ${escapeHTML(post.name)}</div>
+      <h3>${escapeHTML(post.title)}</h3>
+      <span class="tag">${escapeHTML(post.category)}</span>
+      <p style="margin-top:15px;">${escapeHTML(post.content)}</p>
+      ${post.file_url ? `<img class="note-image" src="${escapeHTML(post.file_url)}" alt="Student notes photo" loading="lazy">` : ""}
+      <div class="actions">
+        <button onclick="likePost(${index})">❤️ ${post.likes || 0}</button>
+        <button onclick="commentPost(${index})">💬 ${post.comments || 0}</button>
+        <button onclick="savePost(${index})">🔖 Save</button>
+        ${deleteButton}
+      </div>`;
+
+    container.appendChild(card);
+  });
+}
+
+function openModal(mode){
+  currentMode=mode;
+  const imageInput=document.getElementById("postImage");
+  const preview=document.getElementById("imagePreview");
+  if(imageInput) imageInput.value="";
+  if(preview){ preview.style.display="none"; preview.removeAttribute("src"); }
+  document.getElementById("postModal").style.display="flex";
+  document.getElementById("modalTitle").innerText=
+    mode==="note" ? "📝 Share Your Notes" : "💡 Share Your Idea";
+  document.getElementById("postContent").placeholder=
+    mode==="note" ? "Apne notes yahan likhein..." : "Apna vichar yahan likhein...";
+}
+
+function closeModal(){
+  document.getElementById("postModal").style.display="none";
+}
+
+function previewImage(event){
+  const input=event.target;
+  const preview=document.getElementById("imagePreview");
+  const file=input.files?.[0];
+  if(!file){
+    preview.style.display="none";
+    preview.removeAttribute("src");
+    return;
+  }
+  if(file.size>5*1024*1024){
+    alert("Photo 5 MB से छोटी होनी चाहिए।");
+    input.value="";
+    preview.style.display="none";
+    preview.removeAttribute("src");
+    return;
+  }
+  preview.src=URL.createObjectURL(file);
+  preview.style.display="block";
+}
+
+async function uploadNoteImage(userId,file){
+  if(!file) return null;
+  if(file.size>5*1024*1024) throw new Error("Photo 5 MB से छोटी होनी चाहिए।");
+  const allowed=["image/jpeg","image/png","image/webp"];
+  if(!allowed.includes(file.type)) throw new Error("केवल JPG, PNG या WebP photo upload करें।");
+
+  const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const path=`${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+  const {error}=await supabaseClient.storage.from("note-images").upload(path,file,{contentType:file.type,upsert:false});
+  if(error) throw error;
+
+  const {data}=supabaseClient.storage.from("note-images").getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function addPost(){
+  const name=document.getElementById("studentName").value.trim();
+  const title=document.getElementById("postTitle").value.trim();
+  const category=document.getElementById("postCategory").value;
+  const content=document.getElementById("postContent").value.trim();
+  const imageInput=document.getElementById("postImage");
+  const imageFile=imageInput.files?.[0] || null;
+
+  if(!title || !content){
+    alert("Title और content भरें।");
+    return;
+  }
+
+  const {data:{user}}=await supabaseClient.auth.getUser();
+
+  if(!user){
+    alert("पहले Login करें, फिर Notes/Idea publish करें।");
+    return;
+  }
+
+  const publishButton=document.querySelector('#postModal .btn');
+  publishButton.disabled=true;
+  publishButton.innerText="⏳ Upload हो रहा है...";
+
+  try{
+    const profileName=name || user.user_metadata?.name || user.email?.split("@")[0] || "Student";
+    await ensureProfile(user,profileName);
+
+    let fileUrl=null;
+    if(imageFile){
+      fileUrl=await uploadNoteImage(user.id,imageFile);
+    }
+
+    const {error}=await supabaseClient.from("posts").insert({
+      user_id:user.id,
+      title:title,
+      content:content,
+      category:category,
+      post_type:currentMode,
+      file_url:fileUrl
+    });
+
+    if(error) throw error;
+
+    closeModal();
+    document.getElementById("studentName").value="";
+    document.getElementById("postTitle").value="";
+    document.getElementById("postContent").value="";
+    imageInput.value="";
+    const preview=document.getElementById("imagePreview");
+    preview.style.display="none";
+    preview.removeAttribute("src");
+
+    alert(imageFile ? "Note और photo successfully upload हो गई! 🎉" : "Post Supabase database में successfully save हो गई! 🎉");
+    await loadPosts();
+  }catch(error){
+    console.error("Add post error:",error);
+    alert("Post/photo save नहीं हुई: "+error.message);
+  }finally{
+    publishButton.disabled=false;
+    publishButton.innerText="Publish";
+  }
+}
+async function likePost(index){
+  const post=posts[index];
+  if(post.demo){
+    alert("यह demo post है। अपनी नई post पर Like test करें।");
+    return;
+  }
+
+  const {data:{user}}=await supabaseClient.auth.getUser();
+  if(!user){
+    alert("Like करने के लिए पहले Login करें।");
+    return;
+  }
+
+  try{
+    const {data:existing,error:checkError}=await supabaseClient
+      .from("likes")
+      .select("id")
+      .eq("post_id",post.id)
+      .eq("user_id",user.id)
+      .maybeSingle();
+
+    if(checkError) throw checkError;
+
+    if(existing){
+      const {error}=await supabaseClient.from("likes").delete().eq("id",existing.id);
+      if(error) throw error;
+    }else{
+      const {error}=await supabaseClient.from("likes").insert({
+        post_id:post.id,
+        user_id:user.id
+      });
+      if(error) throw error;
+    }
+
+    await loadPosts();
+  }catch(error){
+    console.error("Like error:",error);
+    alert("Like update नहीं हुआ: "+error.message);
+  }
+}
+
+async function commentPost(index){
+  const post=posts[index];
+  if(post.demo){
+    alert("यह demo post है। अपनी नई post पर Comment test करें।");
+    return;
+  }
+
+  const {data:{user}}=await supabaseClient.auth.getUser();
+  if(!user){
+    alert("Comment करने के लिए पहले Login करें।");
+    return;
+  }
+
+  const comment=prompt("Apna comment likhein:");
+  if(!comment || !comment.trim()) return;
+
+  try{
+    const {error}=await supabaseClient.from("comments").insert({
+      post_id:post.id,
+      user_id:user.id,
+      comment:comment.trim()
+    });
+
+    if(error) throw error;
+
+    await loadPosts();
+  }catch(error){
+    console.error("Comment error:",error);
+    alert("Comment save नहीं हुआ: "+error.message);
+  }
+}
+
+async function deletePost(index){
+  const post=posts[index];
+  if(post.demo) return;
+
+  const {data:{user}}=await supabaseClient.auth.getUser();
+  if(!user || user.id!==post.user_id){
+    alert("आप केवल अपनी post delete कर सकते हैं।");
+    return;
+  }
+
+  if(!confirm("क्या आप यह post delete करना चाहते हैं?")) return;
+
+  try{
+    const {error}=await supabaseClient.from("posts").delete().eq("id",post.id);
+    if(error) throw error;
+    await loadPosts();
+  }catch(error){
+    console.error("Delete error:",error);
+    alert("Post delete नहीं हुई: "+error.message);
+  }
+}
+
+function savePost(index){
+  const post=posts[index];
+  const saved=JSON.parse(localStorage.getItem("savedPosts"))||[];
+  saved.push(post);
+  localStorage.setItem("savedPosts",JSON.stringify(saved));
+  alert("Post save हो गई! 🔖");
+}
+
+function searchPosts(){
+  const keyword=document.getElementById("searchInput").value.toLowerCase().trim();
+  if(!keyword){
+    displayPosts();
+    return;
+  }
+
+  displayPosts(posts.filter(p=>
+    p.title.toLowerCase().includes(keyword) ||
+    p.content.toLowerCase().includes(keyword) ||
+    p.category.toLowerCase().includes(keyword) ||
+    p.name.toLowerCase().includes(keyword)
+  ));
+}
+
+function filterCategory(category){
+  displayPosts(category==="All" ? posts : posts.filter(p=>p.category===category));
+}
+
+function scrollToPosts(){
+  document.getElementById("postsSection").scrollIntoView({behavior:"smooth"});
+}
+
+function showHome(){
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function toggleAuth(){
+  isSignup=!isSignup;
+
+  document.getElementById("authTitle").innerText=
+    isSignup ? "📝 Student Signup" : "🔐 Student Login";
+
+  document.getElementById("authName").style.display=
+    isSignup ? "block" : "none";
+
+  document.getElementById("authButton").innerText=
+    isSignup ? "Create Account" : "Login";
+
+  document.getElementById("toggleButton").innerText=
+    isSignup ? "पहले से Account है? Login करें" : "नया Account बनाएं";
+
+  const forgotLink=document.getElementById("forgotPasswordLink");
+  if(forgotLink) forgotLink.style.display=isSignup ? "none" : "block";
+
+  document.getElementById("authMessage").innerText="";
+}
+
+function showForgotPassword(){
+  document.getElementById("resetEmail").value=
+    document.getElementById("authEmail").value.trim();
+
+  document.getElementById("resetMessage").innerText="";
+  document.getElementById("resetRequestModal").style.display="flex";
+}
+
+function closeResetRequest(){
+  document.getElementById("resetRequestModal").style.display="none";
+}
+
+function getResetRedirectUrl(){
+  // For localhost/normal web hosting this points back to the same page.
+  // If the file is opened directly as file://, Supabase redirect settings
+  // should instead be configured for the URL where the site is hosted.
+  return window.location.href.split("#")[0];
+}
+
+async function sendResetEmail(){
+  const email=document.getElementById("resetEmail").value.trim();
+  const message=document.getElementById("resetMessage");
+
+  if(!email){
+    message.innerText="⚠️ अपना registered email डालें।";
+    return;
+  }
+
+  message.innerText="⏳ Reset email भेजी जा रही है...";
+
+  try{
+    const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{
+      redirectTo:getResetRedirectUrl()
+    });
+
+    if(error){
+      message.innerText="❌ "+error.message;
+      return;
+    }
+
+    message.innerText="✅ Reset link email पर भेज दिया गया है। Gmail inbox/spam check करें।";
+  }catch(error){
+    console.error("Reset email error:",error);
+    message.innerText="❌ "+(error.message||error);
+  }
+}
+
+async function updatePassword(){
+  const password=document.getElementById("newPassword").value;
+  const confirm=document.getElementById("confirmPassword").value;
+  const message=document.getElementById("newPasswordMessage");
+
+  if(!password || !confirm){
+    message.innerText="⚠️ दोनों password fields भरें।";
+    return;
+  }
+
+  if(password.length<6){
+    message.innerText="⚠️ Password कम से कम 6 characters का होना चाहिए।";
+    return;
+  }
+
+  if(password!==confirm){
+    message.innerText="❌ दोनों passwords match नहीं कर रहे।";
+    return;
+  }
+
+  try{
+    const {error}=await supabaseClient.auth.updateUser({password:password});
+
+    if(error){
+      message.innerText="❌ "+error.message;
+      return;
+    }
+
+    message.innerText="✅ Password successfully update हो गया! अब Login कर सकते हैं।";
+
+    setTimeout(async()=>{
+      await supabaseClient.auth.signOut();
+      location.reload();
+    },1500);
+  }catch(error){
+    console.error("Update password error:",error);
+    message.innerText="❌ "+(error.message||error);
+  }
+}
+
+async function handleAuth(){
+  const email=document.getElementById("authEmail").value.trim();
+  const password=document.getElementById("authPassword").value;
+  const name=document.getElementById("authName").value.trim();
+  const message=document.getElementById("authMessage");
+
+  message.innerText="";
+
+  if(!email || !password){
+    message.innerText="⚠️ Email और password भरें।";
+    return;
+  }
+
+  if(password.length<6){
+    message.innerText="⚠️ Password कम से कम 6 characters का होना चाहिए।";
+    return;
+  }
+
+  try{
+    if(isSignup){
+      if(!name){
+        message.innerText="⚠️ अपना नाम भरें।";
+        return;
+      }
+
+      const {data,error}=await supabaseClient.auth.signUp({
+        email,
+        password,
+        options:{data:{name:name}}
+      });
+
+      if(error){
+        message.innerText="❌ "+error.message;
+        return;
+      }
+
+      if(data.session){
+        await ensureProfile(data.user,name);
+        message.innerText="✅ Account बन गया और login हो गया!";
+        await checkUser();
+      }else{
+        message.innerText="✅ Account बन गया! Email verify करके फिर Login करें।";
+        document.getElementById("authPassword").value="";
+      }
+    }else{
+      const {data,error}=await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if(error){
+        message.innerText="❌ "+error.message;
+        return;
+      }
+
+      await ensureProfile(data.user);
+      await checkUser();
+    }
+  }catch(error){
+    console.error("Auth error:",error);
+    message.innerText="❌ कुछ समस्या हुई: "+(error.message||error);
+  }
+}
+
+async function ensureProfile(user,nameFromForm=""){
+  if(!user) return;
+
+  const name=
+    nameFromForm ||
+    user.user_metadata?.name ||
+    user.email?.split("@")[0] ||
+    "Student";
+
+  const {error}=await supabaseClient
+    .from("profiles")
+    .upsert(
+      {id:user.id,name:name},
+      {onConflict:"id"}
+    );
+
+  if(error) console.error("Profile error:",error);
+}
+
+async function checkUser(){
+  const {data,error}=await supabaseClient.auth.getUser();
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const user=data?.user;
+  if(!user) return;
+
+  const displayName=
+    user.user_metadata?.name ||
+    user.email?.split("@")[0] ||
+    "Student";
+
+  document.getElementById("authBox").innerHTML=`
+    <h2>👋 Welcome, ${escapeHTML(displayName)}!</h2>
+    <p style="margin:15px 0;">${escapeHTML(user.email)}</p>
+    <button class="btn" onclick="logout()">Logout</button>
+    <p class="message" style="color:green;">आप successfully login हैं।</p>`;
+}
+
+async function logout(){
+  const {error}=await supabaseClient.auth.signOut();
+
+  if(error){
+    alert("Logout error: "+error.message);
+    return;
+  }
+
+  location.reload();
+}
+
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+  if(event==="PASSWORD_RECOVERY"){
+    document.getElementById("newPasswordModal").style.display="flex";
+  }
+  if(session) checkUser();
+});
+
+document.addEventListener("DOMContentLoaded",async()=>{
+  // If a recovery link opens this page, Supabase fires PASSWORD_RECOVERY above.
+  const forgotLink=document.getElementById("forgotPasswordLink");
+  if(forgotLink) forgotLink.style.display=isSignup?"none":"block";
+  await checkUser();
+  await loadPosts();
+});
+
+window.onclick=function(event){
+  const modal=document.getElementById("postModal");
+  const resetModal=document.getElementById("resetRequestModal");
+  if(event.target===modal) closeModal();
+  if(event.target===resetModal) closeResetRequest();
+};
+</script>
+</body>
+</html>
+</body>
+</html>
